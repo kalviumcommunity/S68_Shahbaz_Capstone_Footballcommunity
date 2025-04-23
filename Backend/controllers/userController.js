@@ -1,54 +1,100 @@
+// controllers/userController.js
+
 const User = require('../models/User');
+const Post = require('../models/Post');
+const fs = require('fs');
+const path = require('path');
 
-// Get user profile
-const getUserProfile = async (req, res) => {
+export const signup = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const { username, email, password } = req.body;
+    
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
     }
-    res.status(200).json(user);
+
+    // Check if user exists
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'User already exists'
+      });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new user
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+
+    // Save to database
+    const savedUser = await newUser.save();
+
+    // Return response without password
+    const userToReturn = { ...savedUser._doc };
+    delete userToReturn.password;
+
+    res.status(201).json({
+      success: true,
+      user: userToReturn,
+      message: 'User created successfully'
+    });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Signup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
   }
 };
 
-// Update user profile
-const updateUserProfile = async (req, res) => {
-  const { username, email, profilePicture } = req.body;
-
+// Get user profile by ID
+exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-
+    // Get user ID from authenticated token (for logged-in user's profile)
+    const userId = req.user.id;
+    
+    const user = await User.findById(userId).select('-password');
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
     }
 
-    user.username = username || user.username;
-    user.email = email || user.email;
-    user.profilePicture = profilePicture || user.profilePicture;
+    // Get user's posts
+    const posts = await Post.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const updatedUser = await user.save();
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Delete user profile
-const deleteUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    // Convert profile picture path to URL
+    if (user.profilePicture) {
+      user.profilePicture = `${req.protocol}://${req.get('host')}/${
+        user.profilePicture.replace(/\\/g, '/')
+      }`;
     }
 
-    await user.remove();
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ 
+      success: true,
+      user,
+      posts 
+    });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while fetching profile' 
+    });
   }
 };
-
-module.exports = { getUserProfile, updateUserProfile, deleteUserProfile };

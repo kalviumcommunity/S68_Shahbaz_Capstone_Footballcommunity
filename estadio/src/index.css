@@ -1,10 +1,13 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; 
 
+/* Add these Metro Boomin-inspired custom styles */
 @layer components {
-  .cta-button {
-    @apply bg-gradient-to-r from-primary to-secondary text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-lg;
+  .metro-nav {
+    @apply fixed top-0 left-0 right-0 z-50 bg-black border-b border-metro-red/50 shadow-lg shadow-metro-red/10 backdrop-blur-sm;
   }
-}
-
+  .metro-btn {
+    @apply flex items-center gap-1 px-3 py-2 rounded-md bg-black/50 border border-metro-red/30 text-white hover:bg-metro-red/10 transition-colors;
+  }
+} 

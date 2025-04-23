@@ -1,6 +1,20 @@
 import React from 'react';
-import footballVideo from '../assets/football.mp4'; // Path to your video file
+import footballVideo from '../assets/football3.mp4';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+
 export default function Hero() {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const handleUploadClick = () => {
+    if (isAuthenticated) {
+      navigate('/upload');
+    } else {
+      navigate('/signup', { state: { from: '/upload' } });
+    }
+  };
+
   return (
     <section className="relative h-screen overflow-hidden">
       {/* Background Video */}
@@ -26,10 +40,13 @@ export default function Hero() {
           RELIVE FOOTBALL'S GREATEST MOMENTS
         </h1>
         <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-          Watch, Upload & Share the Most Insane Goals
+          Watch, Upload & Share the Most Insane Football Moments
         </p>
-        <button className="cta-button">
-          Upload Your Clip
+        <button 
+          onClick={handleUploadClick}
+          className="cta-button"
+        >
+          {isAuthenticated ? 'Upload Your Clip' : 'Join Now to Upload'}
         </button>
       </div>
     </section>
