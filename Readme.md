@@ -157,7 +157,7 @@ Brief Description:
 ###Get API used 
 
   ** PUT API USED **
-
-  ***DATABASE CREATED ****
-
+  
+  
+**Database Read and Write performed**
 
