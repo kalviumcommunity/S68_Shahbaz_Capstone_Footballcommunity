@@ -152,7 +152,17 @@ Brief Description:
 
 - **Domain Setup:**
   - (Optional) Connect custom domain if available.
+ 
+
+###Get API used 
+
 
   ** PUT API USED **
 **Initiliazed frontend**
+
+  **Relation between entities done**
+  
+  
+**Database Read and Write performed**
+
 
