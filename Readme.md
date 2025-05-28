@@ -157,10 +157,12 @@ Brief Description:
 ###Get API used 
 
 
-  **Relation between entities done**
-
   ** PUT API USED **
+**Initiliazed frontend**
+
+  **Relation between entities done**
   
   
 **Database Read and Write performed**
+
 
