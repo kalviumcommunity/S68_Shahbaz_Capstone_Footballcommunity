@@ -10,7 +10,7 @@ import { signup } from '../controllers/userController';
 
 const userRouter = express.Router();
 
-userRouter.post('/signup', signup);
+
 
 // Get authenticated user's profile
 userRouter.get('/profile', authMiddleware, getUserProfile);
